@@ -17,6 +17,15 @@ func main() {
 	setup.InitConfig()
 	// 初始化多语言
 	setup.InitLang()
+
+	// 创建根上下文
+	ctx := context.Background()
+
+	// 初始化 MCP Manager
+	setup.InitMCP(ctx)
+	// 确保退出时清理 MCP 连接
+	defer setup.StopMCP()
+
 	// 初始化命令
 	app := &cli.Command{
 		Name:   "wen",
@@ -43,7 +52,7 @@ func main() {
 		},
 	}
 	// 运行命令
-	if err := app.Run(context.Background(), os.Args); err != nil {
+	if err := app.Run(ctx, os.Args); err != nil {
 		logger.Fatal(err.Error())
 	}
 }

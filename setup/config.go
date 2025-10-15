@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"wen-ai-cli/mcp"
 	"wen-ai-cli/model"
 
 	"github.com/gookit/config/v2"
@@ -66,11 +67,36 @@ func createDefaultConfig(configFilePath string) error {
 				MaxAge:     30,
 				Level:      "debug",
 			},
-		}, AnswerConfig: model.AnswerConfig{
+		},
+		AnswerConfig: model.AnswerConfig{
 			EnableExplain:            true,
 			EnableExtendParams:       true,
 			EnablePlatformPerception: true,
 			EnableWorkUserAndDir:     true,
+		},
+		MCP: mcp.MCPConfig{
+			Enabled: false,
+			Servers: []mcp.ServerConfig{
+				{
+					Name:      "local-system-example",
+					Transport: mcp.TransportTypeStdio,
+					Command:   "python3",
+					Args:      []string{"/path/to/your/mcp_server.py"},
+					Env:       map[string]string{},
+					Enabled:   false,
+					AutoStart: false,
+				},
+				{
+					Name:      "remote-server-example",
+					Transport: mcp.TransportTypeHTTP,
+					URL:       "http://your-remote-server:8080/mcp",
+					Headers: map[string]string{
+						"Authorization": "Bearer your-api-token",
+					},
+					Enabled:   false,
+					AutoStart: false,
+				},
+			},
 		},
 	}
 	jsonData, err := json.Marshal(emptyCfg)

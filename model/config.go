@@ -1,5 +1,7 @@
 package model
 
+import "wen-ai-cli/mcp"
+
 type OpenAI struct {
 	APIKey  string `mapstructure:"apiKey" json:"apiKey"`
 	BaseURL string `mapstructure:"baseURL" json:"baseURL"`
@@ -34,8 +36,9 @@ type AnswerConfig struct {
 }
 
 type Config struct {
-	DefaultLang  string       `mapstructure:"defaultLang" json:"defaultLang"`
-	OpenAI       OpenAI       `mapstructure:"openai" json:"openai"`
-	Logger       Logger       `mapstructure:"logger" json:"logger"`
-	AnswerConfig AnswerConfig `mapstructure:"answerConfig" json:"answerConfig"`
+	DefaultLang  string        `mapstructure:"defaultLang" json:"defaultLang"`
+	OpenAI       OpenAI        `mapstructure:"openai" json:"openai"`
+	Logger       Logger        `mapstructure:"logger" json:"logger"`
+	AnswerConfig AnswerConfig  `mapstructure:"answerConfig" json:"answerConfig"`
+	MCP          mcp.MCPConfig `mapstructure:"mcp" json:"mcp"`
 }

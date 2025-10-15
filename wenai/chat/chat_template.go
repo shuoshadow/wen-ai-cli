@@ -7,6 +7,7 @@ import (
 	"strings"
 	"wen-ai-cli/common"
 	"wen-ai-cli/logger"
+	"wen-ai-cli/setup"
 
 	"github.com/cloudwego/eino/components/prompt"
 	"github.com/cloudwego/eino/schema"
@@ -17,6 +18,8 @@ var systemMessage = `{baseInfo}
 {workUserAndDir}
 
 {workPlatform}
+
+{availableTools}
 
 {workFlow}
 
@@ -72,7 +75,16 @@ var answerDescription = `- 回答说明:
 	2. <code>标签最佳脚本中，如需用户补充参数值必须使用 < 和 > 符号包裹，且格式为: <参数解释,此参数类型[可选：url,string,number]>。
 	3. code内容示例：<code> curl -o <本地文件名称,string> <下载文件的URL,url> </code>
 	4. <placeholder></placeholder>标签中的内容为占位说明，必须按照占位说明进行替换，且不保留<placeholder>标签。
-	5. 如果用户与你存在多轮对话，你的历史回答可能是错误的，或者回答格式不符合参考格式标准，请结合历史对话内容和最新用户意图，在能够解答用户问题的前提下，必须使用完整的正确的参考格式回答。`
+	5. 如果用户与你存在多轮对话，你的历史回答可能是错误的，或者回答格式不符合参考格式标准，请结合历史对话内容和最新用户意图，在能够解答用户问题的前提下，必须使用完整的正确的参考格式回答。
+	6. 如果用户需求需要查询实时数据（如监控指标、日志、服务状态等），你可以使用可用工具。使用格式：
+	   <tool_call>
+	   {
+	     "name": "工具名称",
+	     "arguments": {
+	       "参数名": "参数值"
+	     }
+	   }
+	   </tool_call>`
 
 var answerFormat = `-> 参考回答格式：
 ## 概述：
@@ -97,6 +109,27 @@ var extendParams = `## 常用参数：
 2. -y: <常用参数2解释>
 3. <以此类推，最多5个>
 </placeholder>`
+
+// getAvailableTools 获取可用工具描述
+func getAvailableTools() string {
+	mcpManager := setup.GetMCPManager()
+	if mcpManager == nil {
+		return ""
+	}
+
+	tools := mcpManager.GetAvailableTools()
+	if len(tools) == 0 {
+		return ""
+	}
+
+	var toolsDesc strings.Builder
+	toolsDesc.WriteString("-> 可用工具列表（用于查询实时数据）：\n")
+	for i, tool := range tools {
+		toolsDesc.WriteString(fmt.Sprintf("  %d. %s - %s\n", i+1, tool.Name, tool.Description))
+	}
+
+	return toolsDesc.String()
+}
 
 func createTemplate() prompt.ChatTemplate {
 	// 创建模板，使用 FString 格式
@@ -194,6 +227,7 @@ func CreateOnceMessagesFromTemplate(question string, enableExplain bool, enableE
 		"workFlow":          getWorkFlow(enablePlatformPerception, enableWorkUserAndDir),
 		"workPlatform":      getWorkPlatform(enablePlatformPerception),
 		"workUserAndDir":    getWorkUserAndDir(enableWorkUserAndDir),
+		"availableTools":    getAvailableTools(),
 		"answerDescription": answerDescription,
 		"answerFormat":      getAnswerFormat(enableExplain, enableExtendParams),
 		"question":          question,
@@ -201,9 +235,8 @@ func CreateOnceMessagesFromTemplate(question string, enableExplain bool, enableE
 		"chatHistory": []*schema.Message{},
 	})
 	if err != nil {
-		log.Fatalf("format template failed: %v\n", err)
+		log.Fatalf("format template failed: %v", err)
 	}
-	logger.Debugf("messages: %v\n", messages)
 	return messages
 }
 
@@ -215,6 +248,7 @@ func CreateMoreMessagesFromTemplate(question string, chatHistory []*schema.Messa
 		"workFlow":          getWorkFlow(enablePlatformPerception, enableWorkUserAndDir),
 		"workPlatform":      getWorkPlatform(enablePlatformPerception),
 		"workUserAndDir":    getWorkUserAndDir(enableWorkUserAndDir),
+		"availableTools":    getAvailableTools(),
 		"answerDescription": answerDescription,
 		"answerFormat":      getAnswerFormat(enableExplain, enableExtendParams),
 		"question":          question,
@@ -222,8 +256,7 @@ func CreateMoreMessagesFromTemplate(question string, chatHistory []*schema.Messa
 		"chatHistory": chatHistory,
 	})
 	if err != nil {
-		log.Fatalf("format template failed: %v\n", err)
+		log.Fatalf("format template failed: %v", err)
 	}
-	logger.Debugf("messages: %v\n", messages)
 	return messages
 }

@@ -1,6 +1,7 @@
 package wenai
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"regexp"
@@ -29,10 +30,10 @@ func ReportStream(sr *schema.StreamReader[*schema.Message]) (*schema.Message, *m
 			printer.Print("\n")
 			printer.Flush()
 
-			// 移动正则解析代码到这里
-			re := regexp.MustCompile("(?s)```code(.*?)```")
 			fullContent := fullContentBuilder.String()
-			// 查找如果有多个代码块匹配，则认为最后一个代码块是shellCode
+
+			// 解析代码块
+			re := regexp.MustCompile("(?s)```code(.*?)```")
 			matches := re.FindAllStringSubmatch(fullContent, -1)
 			if len(matches) > 0 {
 				// 获取最后一个匹配的代码块
@@ -55,6 +56,20 @@ func ReportStream(sr *schema.StreamReader[*schema.Message]) (*schema.Message, *m
 					})
 				}
 			}
+
+			// 解析工具调用
+			toolCallRegex := regexp.MustCompile(`(?s)<tool_call>(.*?)</tool_call>`)
+			toolCallMatches := toolCallRegex.FindAllStringSubmatch(fullContent, -1)
+			for _, match := range toolCallMatches {
+				if len(match) > 1 {
+					toolCallJSON := strings.TrimSpace(match[1])
+					var toolCall model.ToolCall
+					if err := json.Unmarshal([]byte(toolCallJSON), &toolCall); err == nil {
+						result.ToolCalls = append(result.ToolCalls, toolCall)
+					}
+				}
+			}
+
 			fullMessage := &schema.Message{
 				Role:    "assistant",
 				Content: fullContent,
