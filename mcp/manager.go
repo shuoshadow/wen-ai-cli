@@ -160,7 +160,7 @@ func (sc *ServerConnection) Connect(ctx context.Context) error {
 	// 根据传输类型创建不同的客户端
 	switch sc.config.Transport {
 	case TransportTypeHTTP:
-		// HTTP 传输（远程连接）
+		// HTTP 传输
 		if sc.config.URL == "" {
 			return fmt.Errorf("HTTP transport requires URL")
 		}
@@ -174,7 +174,7 @@ func (sc *ServerConnection) Connect(ctx context.Context) error {
 		}
 
 	case TransportTypeStdio, "":
-		// STDIO 传输（本地启动，默认）
+		// STDIO 传输
 		if sc.config.Command == "" {
 			return fmt.Errorf("STDIO transport requires command")
 		}
@@ -201,8 +201,13 @@ func (sc *ServerConnection) Connect(ctx context.Context) error {
 
 	sc.client = mcpClient
 
-	// 初始化连接
-	initCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	if sc.config.Transport == TransportTypeStdio || sc.config.Transport == "" {
+		// 等待进程启动，特别是 npx 可能需要下载包
+		time.Sleep(2 * time.Second)
+	}
+
+	// 初始化连接（增加超时时间到 30 秒）
+	initCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	initRequest := mcpTypes.InitializeRequest{}

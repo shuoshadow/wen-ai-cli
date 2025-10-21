@@ -2,14 +2,15 @@ package action
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"wen-ai-cli/common"
 	"wen-ai-cli/execute"
 	"wen-ai-cli/logger"
+	"wen-ai-cli/mcp"
 	"wen-ai-cli/setup"
-	"wen-ai-cli/wenai/chat"
-
 	"wen-ai-cli/wenai"
+	"wen-ai-cli/wenai/chat"
 
 	"github.com/cloudwego/eino/schema"
 	"github.com/urfave/cli/v3"
@@ -55,6 +56,75 @@ func NewWenChatAction() cli.ActionFunc {
 			fullMessage, hiddenParams, err := wenai.ReportStream(streamResult)
 			if err != nil {
 				logger.Errorf("ReportStream failed %v", err)
+			}
+
+			// 检查是否有工具调用
+			if hiddenParams.HasToolCalls() {
+				mcpManager := setup.GetMCPManager()
+				if mcpManager != nil {
+					logger.Info("[正在调用工具查询实时数据...]")
+
+					// 执��所有工具调用
+					var toolResults []string
+					for _, toolCall := range hiddenParams.ToolCalls {
+						logger.Debugf("Calling tool: %s with args: %v", toolCall.Name, toolCall.Arguments)
+
+						result, err := mcpManager.CallTool(ctx, &mcp.ToolCallRequest{
+							Name:      toolCall.Name,
+							Arguments: toolCall.Arguments,
+						})
+
+						if err != nil {
+							logger.Errorf("Tool call failed: %v", err)
+							errorMsg := fmt.Sprintf("❌ 工具 %s 调用失败: %v", toolCall.Name, err)
+							toolResults = append(toolResults, errorMsg)
+							logger.Info(errorMsg)
+							continue
+						}
+
+						// 提取工具返回的文本内容并展示给用户
+						if len(result.Content) > 0 {
+							var contentText string
+							for _, content := range result.Content {
+								if content.Text != "" {
+									contentText += content.Text + "\n"
+								}
+							}
+
+							if contentText != "" {
+								logger.Infof("\n✓ 工具 [%s] 返回结果:", toolCall.Name)
+								logger.Info("─────────────────────────────────")
+								logger.Info(contentText)
+								logger.Info("─────────────────────────────────")
+								toolResults = append(toolResults, fmt.Sprintf("工具 %s 返回:\n%s", toolCall.Name, contentText))
+							} else {
+								noDataMsg := fmt.Sprintf("⚠️  工具 %s 未返回有效数据", toolCall.Name)
+								logger.Info(noDataMsg)
+								toolResults = append(toolResults, noDataMsg)
+							}
+						} else {
+							noContentMsg := fmt.Sprintf("⚠️  工具 %s 返回为空", toolCall.Name)
+							logger.Info(noContentMsg)
+							toolResults = append(toolResults, noContentMsg)
+						}
+					}
+
+					// 将工具结果添加到消息历史，让 AI 基于真实数据重新生成答案
+					if len(toolResults) > 0 {
+						messages = append(messages, fullMessage)
+						messages = append(messages, &schema.Message{
+							Role:    "user",
+							Content: fmt.Sprintf("以上是工具调用的真实结果：\n%s\n\n请基于这些真实数据，生成一个完整、准确的命�����和说明。注意：\n1. 如果工具返回了具体数据，请直接在命令中使用，不要使用占位符\n2. 如果工具调用失败，请说明原因并给出替代方案\n3. 必须严格按照回答格式输出", strings.Join(toolResults, "\n\n")),
+						})
+
+						logger.Info("\n[基于查询结果生成最终答案...]")
+						streamResult = wenai.Stream(ctx, cm, messages)
+						fullMessage, hiddenParams, err = wenai.ReportStream(streamResult)
+						if err != nil {
+							logger.Errorf("ReportStream failed %v", err)
+						}
+					}
+				}
 			}
 
 			// 打印帮助信息

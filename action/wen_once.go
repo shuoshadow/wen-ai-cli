@@ -48,13 +48,36 @@ func NewWenOnceAction() cli.ActionFunc {
 
 					if err != nil {
 						logger.Errorf("Tool call failed: %v", err)
-						toolResults = append(toolResults, fmt.Sprintf("工具 %s 调用失败: %v", toolCall.Name, err))
+						errorMsg := fmt.Sprintf("❌ 工具 %s 调用失败: %v", toolCall.Name, err)
+						toolResults = append(toolResults, errorMsg)
+						fmt.Println(errorMsg)
 						continue
 					}
 
-					// 提取工具返回的文本内容
+					// 提取工具返回的文本内容并展示给用户
 					if len(result.Content) > 0 {
-						toolResults = append(toolResults, fmt.Sprintf("工具 %s 返回结果:\n%s", toolCall.Name, result.Content[0].Text))
+						var contentText string
+						for _, content := range result.Content {
+							if content.Text != "" {
+								contentText += content.Text + "\n"
+							}
+						}
+
+						if contentText != "" {
+							fmt.Printf("\n✓ 工具 [%s] 返回结果:\n", toolCall.Name)
+							fmt.Println("─────────────────────────────────")
+							fmt.Println(contentText)
+							fmt.Println("─────────────────────────────────")
+							toolResults = append(toolResults, fmt.Sprintf("工具 %s 返回:\n%s", toolCall.Name, contentText))
+						} else {
+							noDataMsg := fmt.Sprintf("⚠️  工具 %s 未返回有效数据", toolCall.Name)
+							fmt.Println(noDataMsg)
+							toolResults = append(toolResults, noDataMsg)
+						}
+					} else {
+						noContentMsg := fmt.Sprintf("⚠️  工具 %s 返回为空", toolCall.Name)
+						fmt.Println(noContentMsg)
+						toolResults = append(toolResults, noContentMsg)
 					}
 				}
 
@@ -63,10 +86,10 @@ func NewWenOnceAction() cli.ActionFunc {
 					messages = append(messages, fullMessage)
 					messages = append(messages, &schema.Message{
 						Role:    "user",
-						Content: fmt.Sprintf("工具调用结果：\n%s\n\n请基于以上真实数据，重新生成完整的回答。", strings.Join(toolResults, "\n\n")),
+						Content: fmt.Sprintf("以上是工具调用的真实结果：\n%s\n\n请基于这些真实数据，生成一个完整、准确的命令和说明。注意：\n1. 如果工具返回了具体数据，请直接在命令中使用，不要使用占位符\n2. 如果工具调用失败，请说明原因并给出替代方案\n3. 必须严格按照回答格式输出", strings.Join(toolResults, "\n\n")),
 					})
 
-					fmt.Println("\n[基于查询结果生成答案...]")
+					fmt.Println("\n[基于查询结果生成最终答案...]")
 					streamResult = wenai.Stream(ctx, cm, messages)
 					fullMessage, hiddenParams, err = wenai.ReportStream(streamResult)
 					if err != nil {
