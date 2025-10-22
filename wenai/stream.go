@@ -32,14 +32,19 @@ func ReportStream(sr *schema.StreamReader[*schema.Message]) (*schema.Message, *m
 
 			fullContent := fullContentBuilder.String()
 
-			// 解析代码块
-			re := regexp.MustCompile("(?s)```code(.*?)```")
+			// 解析代码块 - 支持多种格式：```code、```bash、```sh、```shell 等
+			re := regexp.MustCompile("(?s)```(?:code|bash|sh|shell|zsh)\\s*(.*?)```")
 			matches := re.FindAllStringSubmatch(fullContent, -1)
 			if len(matches) > 0 {
-				// 获取最后一个匹配的代码块
-				lastMatch := matches[len(matches)-1]
-				if len(lastMatch) > 1 {
-					shellCode = strings.TrimSpace(lastMatch[1])
+				// 提取第一个代码块作为主要命令
+				// 因为通常第一个是主要命令，后续的可能是备选方案或安装步骤
+				firstMatch := matches[0]
+				if len(firstMatch) > 1 {
+					shellCode = strings.TrimSpace(firstMatch[1])
+				}
+				// 如果有多个代码块，记录日志供调试
+				if len(matches) > 1 {
+					log.Printf("Found %d code blocks, using the first one. All blocks: %v", len(matches), matches)
 				}
 			}
 			if shellCode != "" {

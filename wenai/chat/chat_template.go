@@ -33,9 +33,9 @@ var baseInfo = `- 角色：命令行界面（CLI）专家和系统命令生成�
 
 - 简介: 你是一位精通多种操作系统（如Linux、Windows、macOS）和Shell工具（如Bash、Zsh、Fish、PowerShell等）的专家，对命令行操作有着深入的理解和丰富的实践经验，能够根据用户的需求快速生成最佳命令，并提供详细的说明。
 
-- 技能: 你具备操作系统原理、Shell脚本编程、命令行工具使用以及文档编写的能力，能够准确解析用户需求，生成适用于目标系统的命令，并提供命令说明和扩展参数的详细解释。
+- 技能: 你具备操作系统原理、Shell脚本编程、命令行工具使用以及文档编写的能力，能够准确解析用户需求，生成适用于目标系统的命令。
 
-- 目标: 根据用户指定的目标系统和当前使用的命令行工具，生成最佳执行命令，并提供命令说明和扩展参数说明。
+- 目标: 根据用户指定的目标系统和当前使用的命令行工具，生成最佳执行命令。
 
 - 约束: 生成的命令应准确无误，符合目标系统和Shell工具的语法规范，说明应清晰易懂，适合不同技术水平的用户。`
 
@@ -146,20 +146,21 @@ func createTemplate() prompt.ChatTemplate {
 }
 
 func getAnswerFormat(enableExplain bool, enableExtendParams bool) string {
-	answerFormat = strings.Replace(answerFormat, "<code>", "```code", -1)
-	answerFormat = strings.Replace(answerFormat, "</code>", "```", -1)
+	result := answerFormat
+	result = strings.Replace(result, "<code>", "```code", -1)
+	result = strings.Replace(result, "</code>", "```", -1)
 	if enableExplain {
-		answerFormat = strings.Replace(answerFormat, "{scriptExplain}", scriptExplain, -1)
+		result = strings.Replace(result, "{scriptExplain}", scriptExplain, -1)
 	} else {
-		answerFormat = strings.Replace(answerFormat, "{scriptExplain}", "", -1)
+		result = strings.Replace(result, "{scriptExplain}", "", -1)
 	}
 	if enableExtendParams {
-		answerFormat = strings.Replace(answerFormat, "{extendParams}", extendParams, -1)
+		result = strings.Replace(result, "{extendParams}", extendParams, -1)
 	} else {
-		answerFormat = strings.Replace(answerFormat, "{extendParams}", "", -1)
+		result = strings.Replace(result, "{extendParams}", "", -1)
 	}
 
-	return answerFormat
+	return result
 }
 
 func getWorkPlatform(enablePlatformPerception bool) string {
@@ -175,9 +176,10 @@ func getWorkPlatform(enablePlatformPerception bool) string {
 	if err != nil {
 		logger.Errorf("get shell platform failed: %v\n", err)
 	}
-	workPlatform = strings.Replace(workPlatform, "{systemInfo}", systemInfo, -1)
-	workPlatform = strings.Replace(workPlatform, "{shellPlatform}", shellPlatform, -1)
-	return workPlatform
+	result := workPlatform
+	result = strings.Replace(result, "{systemInfo}", systemInfo, -1)
+	result = strings.Replace(result, "{shellPlatform}", shellPlatform, -1)
+	return result
 }
 
 func getWorkUserAndDir(enableWorkUserAndDir bool) string {
@@ -192,12 +194,13 @@ func getWorkUserAndDir(enableWorkUserAndDir bool) string {
 	if err != nil {
 		logger.Errorf("get pwd failed: %v\n", err)
 	}
-	workUserAndDir = strings.Replace(workUserAndDir, "{workUser}", user, -1)
-	workUserAndDir = strings.Replace(workUserAndDir, "{workDir}", pwd, -1)
-	return workUserAndDir
+	result := workUserAndDir
+	result = strings.Replace(result, "{workUser}", user, -1)
+	result = strings.Replace(result, "{workDir}", pwd, -1)
+	return result
 }
 
-func getWorkFlow(enablePlatformPerception bool, enableWorkUserAndDir bool) string {
+func getWorkFlow(enablePlatformPerception bool, enableWorkUserAndDir bool, enableExplain bool, enableExtendParams bool) string {
 	// 重置所有步骤为默认状态
 	for i := range workFlowSteps {
 		workFlowSteps[i].Enable = workFlowSteps[i].Default
@@ -210,6 +213,20 @@ func getWorkFlow(enablePlatformPerception bool, enableWorkUserAndDir bool) strin
 	if !enablePlatformPerception {
 		workFlowSteps[1].Enable = false
 	}
+
+	// 动态调整第4步的描述
+	step4Text := "按照指定格式，输出命令"
+	if enableExplain && enableExtendParams {
+		step4Text = "按照指定格式，输出命令、命令分析和常用参数。"
+	} else if enableExplain {
+		step4Text = "按照指定格式，输出命令和命令分析。"
+	} else if enableExtendParams {
+		step4Text = "按照指定格式，输出命令和常用参数。"
+	} else {
+		step4Text = "按照指定格式，输出命令。"
+	}
+	workFlowSteps[3].Step = step4Text
+
 	var steps []string
 	for i, step := range workFlowSteps {
 		if step.Enable {
@@ -224,7 +241,7 @@ func CreateOnceMessagesFromTemplate(question string, enableExplain bool, enableE
 	// 使用模板生成消息
 	messages, err := template.Format(context.Background(), map[string]any{
 		"baseInfo":          baseInfo,
-		"workFlow":          getWorkFlow(enablePlatformPerception, enableWorkUserAndDir),
+		"workFlow":          getWorkFlow(enablePlatformPerception, enableWorkUserAndDir, enableExplain, enableExtendParams),
 		"workPlatform":      getWorkPlatform(enablePlatformPerception),
 		"workUserAndDir":    getWorkUserAndDir(enableWorkUserAndDir),
 		"availableTools":    getAvailableTools(),
@@ -245,7 +262,7 @@ func CreateMoreMessagesFromTemplate(question string, chatHistory []*schema.Messa
 	// 使用模板生成消息
 	messages, err := template.Format(context.Background(), map[string]any{
 		"baseInfo":          baseInfo,
-		"workFlow":          getWorkFlow(enablePlatformPerception, enableWorkUserAndDir),
+		"workFlow":          getWorkFlow(enablePlatformPerception, enableWorkUserAndDir, enableExplain, enableExtendParams),
 		"workPlatform":      getWorkPlatform(enablePlatformPerception),
 		"workUserAndDir":    getWorkUserAndDir(enableWorkUserAndDir),
 		"availableTools":    getAvailableTools(),

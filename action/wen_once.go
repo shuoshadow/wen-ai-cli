@@ -54,10 +54,14 @@ func NewWenOnceAction() cli.ActionFunc {
 						continue
 					}
 
+					// 添加详细日志
+					logger.Debugf("Tool %s returned %d content items, isError: %v", toolCall.Name, len(result.Content), result.IsError)
+
 					// 提取工具返回的文本内容并展示给用户
 					if len(result.Content) > 0 {
 						var contentText string
-						for _, content := range result.Content {
+						for i, content := range result.Content {
+							logger.Debugf("Content[%d]: type=%s, text_len=%d", i, content.Type, len(content.Text))
 							if content.Text != "" {
 								contentText += content.Text + "\n"
 							}
@@ -70,8 +74,9 @@ func NewWenOnceAction() cli.ActionFunc {
 							fmt.Println("─────────────────────────────────")
 							toolResults = append(toolResults, fmt.Sprintf("工具 %s 返回:\n%s", toolCall.Name, contentText))
 						} else {
-							noDataMsg := fmt.Sprintf("⚠️  工具 %s 未返回有效数据", toolCall.Name)
+							noDataMsg := fmt.Sprintf("⚠️  工具 %s 未返回有效文本数据 (有 %d 个内容项，但都不是文本)", toolCall.Name, len(result.Content))
 							fmt.Println(noDataMsg)
+							logger.Debugf("Content items: %+v", result.Content)
 							toolResults = append(toolResults, noDataMsg)
 						}
 					} else {
@@ -86,7 +91,7 @@ func NewWenOnceAction() cli.ActionFunc {
 					messages = append(messages, fullMessage)
 					messages = append(messages, &schema.Message{
 						Role:    "user",
-						Content: fmt.Sprintf("以上是工具调用的真实结果：\n%s\n\n请基于这些真实数据，生成一个完整、准确的命令和说明。注意：\n1. 如果工具返回了具体数据，请直接在命令中使用，不要使用占位符\n2. 如果工具调用失败，请说明原因并给出替代方案\n3. 必须严格按照回答格式输出", strings.Join(toolResults, "\n\n")),
+						Content: fmt.Sprintf("以上是工具调用的真实结果：\n%s\n\n请基于这些真实数据，直接回答用户的问题。重要要求：\n1. 直接展示和解释工具返回的数据，用清晰的格式整理展示\n2. **不要生成任何 kubectl 命令**，因为用户本地没有 kubectl\n3. **不要包含「待执行脚本」部分**，只需要概述和数据展示\n4. 如果工具返回了足够的信息，直接用这些信息回答问题\n5. 如果工具调用失败，说明失败原因，但仍然不要生成 kubectl 命令", strings.Join(toolResults, "\n\n")),
 					})
 
 					fmt.Println("\n[基于查询结果生成最终答案...]")
