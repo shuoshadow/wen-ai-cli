@@ -19,6 +19,8 @@ var systemMessage = `{baseInfo}
 
 {workPlatform}
 
+{k8sContext}
+
 {availableTools}
 
 {workFlow}
@@ -27,17 +29,13 @@ var systemMessage = `{baseInfo}
 
 {answerFormat}`
 
-var baseInfo = `- 角色：命令行界面（CLI）专家和系统命令生成顾问。
+var baseInfoRole = `- 角色：命令行界面（CLI）专家、Kubernetes 运维专家和系统命令生成顾问。`
 
-- 背景: 用户在使用不同的操作系统和Shell工具时，面临命令差异和复杂参数理解的挑战，需要一个助手来生成准确且高效的命令，并提供清晰的说明。
+var baseInfoBackground = `- 背景: 用户在使用不同的操作系统和Shell工具时，特别是在 Kubernetes 容器环境中进行运维操作时，面临命令差异和复杂参数理解的挑战，需要一个助手来生成准确且高效的命令，并提供清晰的说明。`
 
-- 简介: 你是一位精通多种操作系统（如Linux、Windows、macOS）和Shell工具（如Bash、Zsh、Fish、PowerShell等）的专家，对命令行操作有着深入的理解和丰富的实践经验，能够根据用户的需求快速生成最佳命令，并提供详细的说明。
+var baseInfoIntro = `- 简介: 你是一位精通多种操作系统（如Linux、Windows、macOS）、Shell工具（如Bash、Zsh、Fish、PowerShell等）和 Kubernetes 运维的专家，对命令行操作、容器技术和云原生运维有着深入的理解和丰富的实践经验，能够根据用户的需求快速生成最佳命令或使用合适的工具。`
 
-- 技能: 你具备操作系统原理、Shell脚本编程、命令行工具使用以及文档编写的能力，能够准确解析用户需求，生成适用于目标系统的命令。
-
-- 目标: 根据用户指定的目标系统和当前使用的命令行工具，生成最佳执行命令。
-
-- 约束: 生成的命令应准确无误，符合目标系统和Shell工具的语法规范，说明应清晰易懂，适合不同技术水平的用户。`
+var baseInfoConstraint = `- 约束: 生成的命令应准确无误，符合目标系统和Shell工具的语法规范，说明应清晰易懂，适合不同技术水平的用户。`
 
 var workPlatform = `-> 目标系统信息：操作系统是"{systemInfo}"，命令行工具是"{shellPlatform}"`
 
@@ -219,6 +217,78 @@ func getWorkUserAndDir(enableWorkUserAndDir bool) string {
 	return result
 }
 
+// getBaseInfo 根据配置动态生成baseInfo
+func getBaseInfo(enableExplain bool, enableExtendParams bool) string {
+	var parts []string
+	parts = append(parts, baseInfoRole)
+	parts = append(parts, baseInfoBackground)
+	parts = append(parts, baseInfoIntro)
+
+	// 根据配置动态生成技能和目标描述
+	var skill, goal string
+	if enableExplain && enableExtendParams {
+		skill = "- 技能: 你具备操作系统原理、Shell脚本编程、命令行工具使用、Kubernetes运维以及文档编写的能力，能够准确解析用户需求，生成适用于目标系统的命令，并提供命令说明和扩展参数的详细解释。"
+		goal = "- 目标: 根据用户指定的目标系统和当前使用的命令行工具，生成最佳执行命令，并提供命令说明和扩展参数说明。在Kubernetes环境中，优先使用MCP工具进行运维操作。"
+	} else if enableExplain {
+		skill = "- 技能: 你具备操作系统原理、Shell脚本编程、命令行工具使用、Kubernetes运维以及文档编写的能力，能够准确解析用户需求，生成适用于目标系统的命令，并提供命令说明。"
+		goal = "- 目标: 根据用户指定的目标系统和当前使用的命令行工具，生成最佳执行命令，并提供命令说明。在Kubernetes环境中，优先使用MCP工具进行运维操作。"
+	} else if enableExtendParams {
+		skill = "- 技能: 你具备操作系统原理、Shell脚本编程、命令行工具使用、Kubernetes运维以及文档编写的能力，能够准确解析用户需求，生成适用于目标系统的命令，并提供扩展参数的详细解释。"
+		goal = "- 目标: 根据用户指定的目标系统和当前使用的命令行工具，生成最佳执行命令，并提供扩展参数说明。在Kubernetes环境中，优先使用MCP工具进行运维操作。"
+	} else {
+		skill = "- 技能: 你具备操作系统原理、Shell脚本编程、命令行工具使用以及Kubernetes运维的能力，能够准确解析用户需求，生成适用于目标系统的命令。"
+		goal = "- 目标: 根据用户指定的目标系统和当前使用的命令行工具，生成最佳执行命令。在Kubernetes环境中，优先使用MCP工具进行运维操作。"
+	}
+
+	parts = append(parts, skill)
+	parts = append(parts, goal)
+	parts = append(parts, baseInfoConstraint)
+
+	return strings.Join(parts, "\n\n")
+}
+
+// getK8sContext 获取K8s环境上下文信息
+func getK8sContext() string {
+	// 检测是否在容器中运行
+	if !common.IsInContainer() {
+		return ""
+	}
+
+	k8sCtx := common.GetK8sContext()
+	if len(k8sCtx) == 0 {
+		return ""
+	}
+
+	var contextInfo []string
+	contextInfo = append(contextInfo, "-> Kubernetes 环境信息：")
+
+	if podName, ok := k8sCtx["pod_name"]; ok {
+		contextInfo = append(contextInfo, fmt.Sprintf("  - 当前 Pod: %s", podName))
+	}
+	if namespace, ok := k8sCtx["namespace"]; ok {
+		contextInfo = append(contextInfo, fmt.Sprintf("  - 命名空间: %s", namespace))
+	}
+	if nodeName, ok := k8sCtx["node_name"]; ok {
+		contextInfo = append(contextInfo, fmt.Sprintf("  - 节点: %s", nodeName))
+	}
+	if currentCtx, ok := k8sCtx["current_context"]; ok {
+		contextInfo = append(contextInfo, fmt.Sprintf("  - 集群上下文: %s", currentCtx))
+	}
+	if clusterAdmin, ok := k8sCtx["cluster_admin"]; ok && clusterAdmin == "true" {
+		contextInfo = append(contextInfo, "  - 权限级别: 集群管理员")
+	} else {
+		contextInfo = append(contextInfo, "  - 权限级别: 受限")
+	}
+
+	contextInfo = append(contextInfo, "")
+	contextInfo = append(contextInfo, "【重要提示】由于当前在 Kubernetes 容器环境中运行，建议：")
+	contextInfo = append(contextInfo, "  1. 优先使用可用的 MCP 工具进行 K8s 相关操作")
+	contextInfo = append(contextInfo, "  2. 生成的命令应考虑容器环境的限制和特性")
+	contextInfo = append(contextInfo, "  3. 对于跨命名空间的操作，需要检查权限")
+
+	return strings.Join(contextInfo, "\n")
+}
+
 func getWorkFlow(enablePlatformPerception bool, enableWorkUserAndDir bool, enableExplain bool, enableExtendParams bool) string {
 	// 重置所有步骤为默认状态
 	for i := range workFlowSteps {
@@ -259,10 +329,11 @@ func CreateOnceMessagesFromTemplate(question string, enableExplain bool, enableE
 	template := createTemplate()
 	// 使用模板生成消息
 	messages, err := template.Format(context.Background(), map[string]any{
-		"baseInfo":          baseInfo,
+		"baseInfo":          getBaseInfo(enableExplain, enableExtendParams),
 		"workFlow":          getWorkFlow(enablePlatformPerception, enableWorkUserAndDir, enableExplain, enableExtendParams),
 		"workPlatform":      getWorkPlatform(enablePlatformPerception),
 		"workUserAndDir":    getWorkUserAndDir(enableWorkUserAndDir),
+		"k8sContext":        getK8sContext(),
 		"availableTools":    getAvailableTools(),
 		"answerDescription": answerDescription,
 		"answerFormat":      getAnswerFormat(enableExplain, enableExtendParams),
@@ -280,10 +351,11 @@ func CreateMoreMessagesFromTemplate(question string, chatHistory []*schema.Messa
 	template := createTemplate()
 	// 使用模板生成消息
 	messages, err := template.Format(context.Background(), map[string]any{
-		"baseInfo":          baseInfo,
+		"baseInfo":          getBaseInfo(enableExplain, enableExtendParams),
 		"workFlow":          getWorkFlow(enablePlatformPerception, enableWorkUserAndDir, enableExplain, enableExtendParams),
 		"workPlatform":      getWorkPlatform(enablePlatformPerception),
 		"workUserAndDir":    getWorkUserAndDir(enableWorkUserAndDir),
+		"k8sContext":        getK8sContext(),
 		"availableTools":    getAvailableTools(),
 		"answerDescription": answerDescription,
 		"answerFormat":      getAnswerFormat(enableExplain, enableExtendParams),
