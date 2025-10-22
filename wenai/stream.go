@@ -43,9 +43,9 @@ func ReportStream(sr *schema.StreamReader[*schema.Message]) (*schema.Message, *m
 					shellCode = strings.TrimSpace(firstMatch[1])
 				}
 				// 如果有多个代码块，记录日志供调试
-				if len(matches) > 1 {
-					log.Printf("Found %d code blocks, using the first one. All blocks: %v", len(matches), matches)
-				}
+				//if len(matches) > 1 {
+				//	log.Printf("Found %d code blocks, using the first one. All blocks: %v", len(matches), matches)
+				//}
 			}
 			if shellCode != "" {
 				result.ShellCode = shellCode
