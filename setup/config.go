@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"wen-ai-cli/logger"
 	"wen-ai-cli/mcp"
 	"wen-ai-cli/model"
 
@@ -42,6 +43,9 @@ func InitConfig() {
 	if err != nil {
 		panic("加载配置文件失败: " + err.Error())
 	}
+
+	// 初始化logger
+	InitLogger()
 }
 
 func createDefaultConfig(configFilePath string) error {
@@ -149,4 +153,25 @@ func GetConfigFilePath() string {
 func GetLogFilePath() string {
 	appDir := GetAppDir()
 	return filepath.Join(appDir, "logs/app.log")
+}
+
+// InitLogger 初始化日志
+func InitLogger() {
+	cfg := GetConfig()
+	loggerCfg := logger.LoggerConfig{
+		Console: logger.ConsoleConfig{
+			Enabled: cfg.Logger.Console.Enabled,
+			Color:   cfg.Logger.Console.Color,
+			Level:   cfg.Logger.Console.Level,
+		},
+		File: logger.FileConfig{
+			Enabled:    cfg.Logger.File.Enabled,
+			Path:       cfg.Logger.File.Path,
+			MaxSize:    cfg.Logger.File.MaxSize,
+			MaxBackups: cfg.Logger.File.MaxBackups,
+			MaxAge:     cfg.Logger.File.MaxAge,
+			Level:      cfg.Logger.File.Level,
+		},
+	}
+	logger.Init(loggerCfg)
 }

@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"wen-ai-cli/setup"
 
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -91,11 +90,29 @@ func getLogLevelValue(levelName string, defaultLevel slog.Level) slog.Level {
 	return defaultLevel
 }
 
-// 初始化日志配置
-func initLogger() {
-	// 从配置文件读取日志配置
-	logConfig := setup.GetConfig().Logger
+// LoggerConfig 日志配置
+type LoggerConfig struct {
+	Console ConsoleConfig
+	File    FileConfig
+}
 
+type ConsoleConfig struct {
+	Enabled bool
+	Color   bool
+	Level   string
+}
+
+type FileConfig struct {
+	Enabled    bool
+	Path       string
+	MaxSize    int
+	MaxBackups int
+	MaxAge     int
+	Level      string
+}
+
+// Init 初始化日志配置
+func Init(logConfig LoggerConfig) {
 	// 设置日志级别
 	consoleLevel := getLogLevelValue(logConfig.Console.Level, slog.LevelInfo)
 	fileLevel := getLogLevelValue(logConfig.File.Level, slog.LevelInfo)
@@ -150,11 +167,12 @@ func initLogger() {
 // 记录日志
 func log(ctx context.Context, level slog.Level, msg string, args ...any) {
 	if logger == nil {
-		initLogger()
+		// 如果logger未初始化，使用默认的控制台输出
+		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelInfo,
+		}))
 	}
-	if logger != nil {
-		logger.Log(ctx, level, msg, args...)
-	}
+	logger.Log(ctx, level, msg, args...)
 }
 
 // Infof 打印信息日志，格式化方式

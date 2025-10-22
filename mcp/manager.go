@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"wen-ai-cli/logger"
 
 	"github.com/mark3labs/mcp-go/client"
 	mcpTypes "github.com/mark3labs/mcp-go/mcp"
@@ -44,17 +45,17 @@ func (m *Manager) Start(ctx context.Context) error {
 
 	for _, cfg := range m.configs {
 		if !cfg.Enabled || !cfg.AutoStart {
-			fmt.Printf("[DEBUG] Skipping MCP server %s (enabled=%v, autoStart=%v)\n", cfg.Name, cfg.Enabled, cfg.AutoStart)
+			logger.Debugf("Skipping MCP server %s (enabled=%v, autoStart=%v)", cfg.Name, cfg.Enabled, cfg.AutoStart)
 			continue
 		}
 
-		fmt.Printf("[INFO] Starting MCP server: %s\n", cfg.Name)
+		logger.Debugf("Starting MCP server: %s", cfg.Name)
 		conn := &ServerConnection{
 			config: cfg,
 		}
 
 		if err := conn.Connect(ctx); err != nil {
-			fmt.Printf("[ERROR] Failed to start MCP server %s: %v\n", cfg.Name, err)
+			logger.Errorf("Failed to start MCP server %s: %v\n", cfg.Name, err)
 			continue
 		}
 
@@ -82,7 +83,7 @@ func (m *Manager) Start(ctx context.Context) error {
 			}
 		}
 
-		fmt.Printf("[INFO] MCP server %s started successfully with %d tools\n", cfg.Name, len(conn.tools))
+		logger.Debugf("MCP server %s started successfully with %d tools", cfg.Name, len(conn.tools))
 	}
 
 	return nil
@@ -94,7 +95,7 @@ func (m *Manager) Stop() error {
 	defer m.mu.Unlock()
 
 	for name, conn := range m.servers {
-		fmt.Printf("[DEBUG] Stopping MCP server: %s\n", name)
+		logger.Debug("Stopping MCP server: " + name)
 		conn.Disconnect()
 	}
 
@@ -165,7 +166,7 @@ func (sc *ServerConnection) Connect(ctx context.Context) error {
 			return fmt.Errorf("HTTP transport requires URL")
 		}
 
-		fmt.Printf("[INFO] Connecting to remote MCP server: %s\n", sc.config.URL)
+		logger.Debugf("Connecting to remote MCP server: %s\n", sc.config.URL)
 
 		// 创建 HTTP 客户端（使用 Streamable HTTP 传输）
 		mcpClient, err = client.NewStreamableHttpClient(sc.config.URL)
