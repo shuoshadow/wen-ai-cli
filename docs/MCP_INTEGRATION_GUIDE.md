@@ -2,7 +2,7 @@
 
 ## 📚 概述
 
-Wen AI CLI 现已支持 Model Context Protocol (MCP)，可以通过 MCP Server 查询实时数据（监控、日志、服务状态等），让 AI 基于真实数据生成更准确的命令和建议。
+Hi AI CLI 现已支持 Model Context Protocol (MCP)，可以通过 MCP Server 查询实时数据（监控、日志、服务状态等），让 AI 基于真实数据生成更准确的命令和建议。
 
 ## 🏗️ 架构说明
 
@@ -24,7 +24,7 @@ AI 基于真实数据生成答案和命令
 
 ### 1. 配置文件位置
 
-配置文件位于：`~/.wenai/conf.json`
+配置文件位于：`~/.hiai/conf.json`
 
 ### 2. 启用 MCP
 
@@ -44,7 +44,7 @@ AI 基于真实数据生成答案和命令
       {
         "name": "local-system",
         "command": "python3",
-        "args": ["/path/to/wen-ai-cli/mcp/servers/local_system_server.py"],
+        "args": ["/path/to/hi-ai-cli/mcp/servers/local_system_server.py"],
         "env": {},
         "enabled": true,
         "autoStart": true
@@ -100,7 +100,7 @@ pip install -r mcp/servers/requirements.txt
 ### 示例 1：查询服务状态
 
 ```bash
-$ wen "nginx 服务运行正常吗？"
+$ hi "nginx 服务运行正常吗？"
 
 [INFO] Initializing MCP Manager...
 [INFO] Starting MCP server: local-system
@@ -134,7 +134,7 @@ systemctl status nginx
 ### 示例 2：查询端口占用
 
 ```bash
-$ wen "8080 端口被什么程序占用了？"
+$ hi "8080 端口被什么程序占用了？"
 
 [正在调用工具查询实时数据...]
 [调用工具: check_port]
@@ -156,7 +156,7 @@ netstat -tulnp | grep 8080
 ### 示例 3：多轮对话
 
 ```bash
-$ wen chat
+$ hi chat
 
 > 帮我检查 docker 服务状态
 
@@ -319,7 +319,7 @@ async def list_tools():
 
 使用：
 ```bash
-$ wen "查看 API 服务的 QPS"
+$ hi "查看 API 服务的 QPS"
 # AI 会自动调用 Prometheus 查询工具获取真实数据
 ```
 
@@ -362,7 +362,7 @@ async def list_tools():
 
 检查日志：
 ```bash
-$ wen "test" 2>&1 | grep MCP
+$ hi "test" 2>&1 | grep MCP
 [ERROR] Failed to start MCP server xxx: ...
 ```
 

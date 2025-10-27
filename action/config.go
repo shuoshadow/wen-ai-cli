@@ -3,7 +3,7 @@ package action
 import (
 	"context"
 	"fmt"
-	"wen-ai-cli/setup"
+	"hi-ai-cli/setup"
 
 	"github.com/urfave/cli/v3"
 )

@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"wen-ai-cli/logger"
-	"wen-ai-cli/mcp"
-	"wen-ai-cli/model"
+	"hi-ai-cli/logger"
+	"hi-ai-cli/mcp"
+	"hi-ai-cli/model"
 
 	"github.com/gookit/config/v2"
 	"github.com/gookit/goutil/fsutil"
@@ -133,7 +133,7 @@ func SaveConfig(cfg *model.Config) {
 // GetAppDir 获取配置目录
 func GetAppDir() string {
 	homeDir := sysutil.UserHomeDir()
-	confDir := filepath.Join(homeDir, ".wenai")
+	confDir := filepath.Join(homeDir, ".hiai")
 	return confDir
 }
 

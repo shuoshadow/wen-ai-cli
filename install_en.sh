@@ -66,7 +66,7 @@ esac
 # If version is not specified, get the latest version
 if [ -z "$VERSION" ]; then
     echo "Getting latest version..."
-    VERSION=$(curl -fSsL https://api.github.com/repos/zdt1013/wen-ai-cli/releases/latest | grep -o '"tag_name": "[^"]*"' | cut -d'"' -f4)
+    VERSION=$(curl -fSsL https://api.github.com/repos/zdt1013/hi-ai-cli/releases/latest | grep -o '"tag_name": "[^"]*"' | cut -d'"' -f4)
     
     if [ -z "$VERSION" ]; then
         echo "Unable to get latest version"
@@ -118,7 +118,7 @@ RELEASE_VERSION=$VERSION
 VERSION=${VERSION#v}
 
 # Build download URL
-GITHUB_URL="https://github.com/zdt1013/wen-ai-cli/releases/download/${RELEASE_VERSION}/wen-ai-cli_${VERSION}_${OS}_${ARCH}${EXT}"
+GITHUB_URL="https://github.com/zdt1013/hi-ai-cli/releases/download/${RELEASE_VERSION}/hi-ai-cli_${VERSION}_${OS}_${ARCH}${EXT}"
 
 # Ensure target directory exists
 check_and_execute "mkdir -p $(dirname $INSTALL_PATH)"
@@ -157,4 +157,4 @@ fi
 check_and_execute "chmod +x $INSTALL_PATH"
 
 echo "Installation complete!"
-echo "wen-ai-cli has been installed to $INSTALL_PATH" 
+echo "hi-ai-cli has been installed to $INSTALL_PATH" 

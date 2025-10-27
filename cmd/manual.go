@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"wen-ai-cli/action"
-	"wen-ai-cli/setup"
+	"hi-ai-cli/action"
+	"hi-ai-cli/setup"
 
 	"github.com/gookit/i18n"
 	"github.com/urfave/cli/v3"
@@ -21,6 +21,6 @@ func NewManualCmd() *cli.Command {
 				Usage:   i18n.Dtr("manualCmdFlag"),
 			},
 		},
-		Action: action.NewWenManualAction(),
+		Action: action.NewHiManualAction(),
 	}
 }

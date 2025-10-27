@@ -4,9 +4,9 @@ import (
 	"errors"
 	"log/slog"
 	"strings"
-	"wen-ai-cli/logger"
-	"wen-ai-cli/model"
-	"wen-ai-cli/validate"
+	"hi-ai-cli/logger"
+	"hi-ai-cli/model"
+	"hi-ai-cli/validate"
 
 	"github.com/gookit/i18n"
 	"github.com/manifoldco/promptui"

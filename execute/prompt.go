@@ -1,8 +1,8 @@
 package execute
 
 import (
-	"wen-ai-cli/setup"
-	"wen-ai-cli/validate"
+	"hi-ai-cli/setup"
+	"hi-ai-cli/validate"
 
 	"github.com/manifoldco/promptui"
 )

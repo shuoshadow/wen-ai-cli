@@ -3,29 +3,29 @@ package action
 import (
 	"context"
 	"fmt"
+	"hi-ai-cli/common"
+	"hi-ai-cli/execute"
+	"hi-ai-cli/hiai"
+	"hi-ai-cli/hiai/chat"
+	"hi-ai-cli/logger"
+	"hi-ai-cli/mcp"
+	"hi-ai-cli/setup"
 	"strings"
-	"wen-ai-cli/common"
-	"wen-ai-cli/execute"
-	"wen-ai-cli/logger"
-	"wen-ai-cli/mcp"
-	"wen-ai-cli/setup"
-	"wen-ai-cli/wenai"
-	"wen-ai-cli/wenai/chat"
 
 	"github.com/cloudwego/eino/schema"
 	"github.com/urfave/cli/v3"
 )
 
-// NewWenOnceAction 创建 wen once action执行
-func NewWenOnceAction() cli.ActionFunc {
+// NewHiOnceAction 创建 hi once action执行
+func NewHiOnceAction() cli.ActionFunc {
 	return func(ctx context.Context, cmd *cli.Command) error {
 		i18n := setup.GetI18n()
 		question := strings.Join(cmd.Args().Slice(), " ")
 		answerConfig := setup.GetConfig().AnswerConfig
 		messages := chat.CreateOnceMessagesFromTemplate(question, answerConfig.EnableExplain, answerConfig.EnableExtendParams, answerConfig.EnablePlatformPerception, answerConfig.EnableWorkUserAndDir)
-		cm := wenai.CreateOpenAIChatModel(ctx)
-		streamResult := wenai.Stream(ctx, cm, messages)
-		fullMessage, hiddenParams, err := wenai.ReportStream(streamResult)
+		cm := hiai.CreateOpenAIChatModel(ctx)
+		streamResult := hiai.Stream(ctx, cm, messages)
+		fullMessage, hiddenParams, err := hiai.ReportStream(streamResult)
 		if err != nil {
 			logger.Errorf("ReportStream failed %v", err)
 		}
@@ -95,8 +95,8 @@ func NewWenOnceAction() cli.ActionFunc {
 					})
 
 					fmt.Println("\n[基于查询结果生成最终答案...]")
-					streamResult = wenai.Stream(ctx, cm, messages)
-					fullMessage, hiddenParams, err = wenai.ReportStream(streamResult)
+					streamResult = hiai.Stream(ctx, cm, messages)
+					fullMessage, hiddenParams, err = hiai.ReportStream(streamResult)
 					if err != nil {
 						logger.Errorf("ReportStream failed %v", err)
 					}

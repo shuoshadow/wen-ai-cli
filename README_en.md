@@ -1,13 +1,13 @@
-# 🤖 Wen AI CLI -- Make Ops Smarter, Make Commands Simpler.
+# 🤖 Hi AI CLI -- Make Ops Smarter, Make Commands Simpler.
 
-Wen AI is a CLI tool designed specifically for server operations and personal host management. By integrating AI capabilities, it helps users quickly find and execute system commands, improving operational efficiency. It can intelligently parse user requirements and provide precise command suggestions and execution solutions, making it an invaluable assistant for operation engineers.
+Hi AI is a CLI tool designed specifically for server operations and personal host management. By integrating AI capabilities, it helps users quickly find and execute system commands, improving operational efficiency. It can intelligently parse user requirements and provide precise command suggestions and execution solutions, making it an invaluable assistant for operation engineers.
 
 [中文](./README.md) · **English** ·  [Report Bug][github-issues-link] · [Request Feature][github-issues-link]
 
 ## ✨ Features
 
 - 🤖 Intelligent Dialogue: Support natural language conversations with AI to quickly find and apply commands
-- 📚 Command Manual Mode: `wen man`，use large language model to help you with command manual queries.
+- 📚 Command Manual Mode: `hi man`，use large language model to help you with command manual queries.
 - 🔍 Smart Context Awareness: Intelligently perceives the current working environment for more accurate AI responses
 - 🖥️ Cross-Platform Compatibility: Supports Linux, MacOS, Windows (arm, amd architectures) platforms
 - 🌍 Multi-language Support: Built-in internationalization support, providing multi-language interface (currently supports Chinese and English)
@@ -27,22 +27,22 @@ Wen AI is a CLI tool designed specifically for server operations and personal ho
 ```bash
 # One-line installation (English version)
 # Install latest version by default
-curl -fSsL https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh | bash
+curl -fSsL https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh | bash
 # Install latest version with script acceleration
-curl -fSsL https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh | bash
+curl -fSsL https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh | bash
 
 # Install specific version with acceleration source
-curl -fSsL https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh | bash -s -- -v v0.1.1 -m ghproxy
+curl -fSsL https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh | bash -s -- -v v0.1.1 -m ghproxy
 # Install latest version with script acceleration
-curl -fSsL https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh | bash -s -- -m ghproxy
+curl -fSsL https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh | bash -s -- -m ghproxy
 ```
 
 ```bash
 # Step-by-step installation
 # Download installation script
-curl -o install.sh https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh
+curl -o install.sh https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh
 # Download installation script with acceleration source
-curl -o install.sh https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh
+curl -o install.sh https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh
 
 # Add execution permission
 chmod +x install.sh
@@ -60,8 +60,8 @@ sudo ./install.sh -v v0.1.1 -m ghproxy
 #### Method 2. 🚀 Local Compilation
 1. Clone repository:
 ```bash
-git clone https://github.com/zdt1013/wen-ai-cli.git
-cd wen-ai-cli
+git clone https://github.com/zdt1013/hi-ai-cli.git
+cd hi-ai-cli
 ```
 
 2. Install dependencies:
@@ -82,7 +82,7 @@ go build
 
 ```bash
 # Basic format
-> wen + [input any question]
+> hi + [input any question]
 ```
 
 ![Single Question Mode Example](docs/example1.png)
@@ -90,9 +90,9 @@ go build
 ### 💬 Start Dialogue Mode
 ```bash
 # Basic format
-> wen chat + [input first question]
+> hi chat + [input first question]
 Or
-> wen chat <enter>
+> hi chat <enter>
   <input any question>
 ```
 ![Dialogue Mode Example](docs/example2.png)
@@ -102,34 +102,34 @@ Or
 
 ```bash
 # Basic format
-> wen man -c curl [optional additional question]
+> hi man -c curl [optional additional question]
 # Example
-> wen man -c curl "focus on fSsL parameter"
+> hi man -c curl "focus on fSsL parameter"
 ```
 ![man mode example](docs/example3.png)
 
 ### 🛠️ Other Commands
 ```bash
 # View configuration
-> wen config --help
+> hi config --help
 # View help information
-> wen --help
+> hi --help
 ```
 
 ### 🔧 Configuration
 
-Before using Wen AI, you need to configure necessary parameters, such as API keys. You can configure through the following commands:
+Before using Hi AI, you need to configure necessary parameters, such as API keys. You can configure through the following commands:
 
 ```bash
-> wen config --apiKey YOUR_API_KEY --baseUrl YOUR_API_BASE --model YOUR_API_MODEL
+> hi config --apiKey YOUR_API_KEY --baseUrl YOUR_API_BASE --model YOUR_API_MODEL
 or
-> wen config -k YOUR_API_KEY -u YOUR_API_BASE -m YOUR_API_MODEL
+> hi config -k YOUR_API_KEY -u YOUR_API_BASE -m YOUR_API_MODEL
 ```
 
 ## 📁 Project Structure
 
 ```
-wen-ai-cli/
+hi-ai-cli/
 ├── action/     # Command action implementation
 ├── assets/     # Static resources
 │   └── lang/   # Language packs
@@ -156,7 +156,7 @@ wen-ai-cli/
  * Tool chain (functioncall, mcp) support
  * Thinking model compatibility
  * User system for easy installation and use without manual AI parameter configuration
- * User knowledge base and preferences for saving usage habits, making Wen AI understand you better
+ * User knowledge base and preferences for saving usage habits, making Hi AI understand you better
 
 ## 📚 Dependencies on Open Source Projects
  * [urfave/cli](https://github.com/urfave/cli) - Command line application framework

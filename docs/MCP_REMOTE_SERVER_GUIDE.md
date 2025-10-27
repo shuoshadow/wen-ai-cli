@@ -2,7 +2,7 @@
 
 ## 📡 概述
 
-Wen AI CLI 现已支持两种 MCP Server 连接方式：
+Hi AI CLI 现已支持两种 MCP Server 连接方式：
 
 1. **本地 STDIO 模式**：在本地启动 MCP Server 进程，通过标准输入输出通信
 2. **远程 HTTP 模式**：连接到远程运行的 MCP Server，通过 HTTP/SSE 协议通信
@@ -380,7 +380,7 @@ async def mcp_endpoint(request: Request):
 ```
 
 ### 客户端日志
-Wen AI CLI 会自动记录：
+Hi AI CLI 会自动记录：
 - MCP Server 连接状态
 - 工具调用时间
 - 错误和重试信息

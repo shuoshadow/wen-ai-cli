@@ -2,8 +2,8 @@ package setup
 
 import (
 	"context"
-	"wen-ai-cli/logger"
-	"wen-ai-cli/mcp"
+	"hi-ai-cli/logger"
+	"hi-ai-cli/mcp"
 )
 
 var mcpManager *mcp.Manager

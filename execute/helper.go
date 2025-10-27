@@ -2,8 +2,8 @@ package execute
 
 import (
 	"strconv"
-	"wen-ai-cli/common"
-	"wen-ai-cli/setup"
+	"hi-ai-cli/common"
+	"hi-ai-cli/setup"
 )
 
 func PrintHelp() *common.StreamPrinter {

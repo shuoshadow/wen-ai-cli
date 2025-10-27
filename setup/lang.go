@@ -3,7 +3,7 @@ package setup
 import (
 	"path/filepath"
 
-	"wen-ai-cli/assets"
+	"hi-ai-cli/assets"
 
 	"github.com/gookit/i18n"
 )

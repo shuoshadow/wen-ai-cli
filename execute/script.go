@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"time"
-	"wen-ai-cli/logger"
+	"hi-ai-cli/logger"
 
 	"github.com/go-cmd/cmd"
 	"github.com/gookit/i18n"

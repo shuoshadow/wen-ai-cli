@@ -3,21 +3,21 @@ package action
 import (
 	"context"
 	"fmt"
+	"hi-ai-cli/common"
+	"hi-ai-cli/execute"
+	"hi-ai-cli/hiai"
+	"hi-ai-cli/hiai/chat"
+	"hi-ai-cli/logger"
+	"hi-ai-cli/mcp"
+	"hi-ai-cli/setup"
 	"strings"
-	"wen-ai-cli/common"
-	"wen-ai-cli/execute"
-	"wen-ai-cli/logger"
-	"wen-ai-cli/mcp"
-	"wen-ai-cli/setup"
-	"wen-ai-cli/wenai"
-	"wen-ai-cli/wenai/chat"
 
 	"github.com/cloudwego/eino/schema"
 	"github.com/urfave/cli/v3"
 )
 
-// NewWenChatAction 创建 chat action执行
-func NewWenChatAction() cli.ActionFunc {
+// NewHiChatAction 创建 chat action执行
+func NewHiChatAction() cli.ActionFunc {
 	return func(ctx context.Context, cmd *cli.Command) error {
 		// 获取配置信息
 		answerConfig := setup.GetConfig().AnswerConfig
@@ -49,11 +49,11 @@ func NewWenChatAction() cli.ActionFunc {
 
 			messages := chat.CreateMoreMessagesFromTemplate(question, chatHistory, answerConfig.EnableExplain, answerConfig.EnableExtendParams, answerConfig.EnablePlatformPerception, answerConfig.EnableWorkUserAndDir)
 			// 创建OpenAI聊天模型
-			cm := wenai.CreateOpenAIChatModel(ctx)
+			cm := hiai.CreateOpenAIChatModel(ctx)
 			// 获取流式处理结果
-			streamResult := wenai.Stream(ctx, cm, messages)
+			streamResult := hiai.Stream(ctx, cm, messages)
 			// 解析流式结果，获取完整消息和隐藏参数
-			fullMessage, hiddenParams, err := wenai.ReportStream(streamResult)
+			fullMessage, hiddenParams, err := hiai.ReportStream(streamResult)
 			if err != nil {
 				logger.Errorf("ReportStream failed %v", err)
 			}
@@ -123,8 +123,8 @@ func NewWenChatAction() cli.ActionFunc {
 						})
 
 						logger.Info("\n[基于查询结果生成最终答案...]")
-						streamResult = wenai.Stream(ctx, cm, messages)
-						fullMessage, hiddenParams, err = wenai.ReportStream(streamResult)
+						streamResult = hiai.Stream(ctx, cm, messages)
+						fullMessage, hiddenParams, err = hiai.ReportStream(streamResult)
 						if err != nil {
 							logger.Errorf("ReportStream failed %v", err)
 						}

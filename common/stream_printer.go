@@ -71,7 +71,7 @@ func NewStreamPrinter() *StreamPrinter {
 		normalLineChar:  "│",
 		headingLineChar: "│──",
 		footerChar:      "╰──",
-		headerText:      "WenAI CLI",
+		headerText:      "HiAI CLI",
 		footerText:      "END",
 
 		// 边框颜色

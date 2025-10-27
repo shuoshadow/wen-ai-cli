@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"wen-ai-cli/common"
-	"wen-ai-cli/logger"
+	"hi-ai-cli/common"
+	"hi-ai-cli/logger"
 
 	"github.com/cloudwego/eino/components/prompt"
 	"github.com/cloudwego/eino/schema"

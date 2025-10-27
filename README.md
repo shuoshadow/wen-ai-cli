@@ -1,13 +1,11 @@
-# 🤖 问AI -- 让运维更智能，让命令更简单。
+# 🤖 Hi AI -- 让运维更智能，让命令更简单。
 
-问AI (Wen AI) CLI是一个专为服务器运维和个人主机管理设计的CLI工具，通过集成AI能力，帮助用户快速查找和执行系统命令，提升运维效率。它能够智能解析用户需求，提供精准的命令建议和执行方案，是运维人员的得力助手。
-
-**中文** · [English](./README_en.md) ·  [报告问题][github-issues-link] · [请求功能][github-issues-link]
+Hi AI (Hi AI) CLI是一个专为服务器运维和个人主机管理设计的CLI工具，通过集成AI能力，帮助用户快速查找和执行系统命令，提升运维效率。它能够智能解析用户需求，提供精准的命令建议和执行方案，是运维人员的得力助手。
 
 ## ✨ 功能特性
 
 - 🤖 智能对话：支持与AI进行自然语言对话，快速查找应用命令
-- 📚 命令手册模式：`wen man`，使用大模型智能解析命令手册，提供更智能的命令手册查询
+- 📚 命令手册模式：`hi man`，使用大模型智能解析命令手册，提供更智能的命令手册查询
 - 🔍 智能感知：智能感知当前工作环境，AI回答更准确
 - 🖥️ 跨平台兼容：支持Linux、MacOS、Windows（arm、amd架构）等平台
 - 🌍 多语言支持：内置国际化支持，提供多语言界面（目前支持中、英文)
@@ -23,27 +21,26 @@
 
 ### 📝 安装步骤
 
-#### 方式1. 📦 二进制安装
 ```bash
 # 一行安装
 # 默认安装最新版本
-curl -fSsL https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh | bash
+curl -fSsL https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh | bash
 # 默认安装最新版本（脚本加速）
-curl -fSsL https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh | bash
+curl -fSsL https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh | bash
 
 # 指定版本和加速源安装
-curl -fSsL https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh | bash -s -- -v v0.1.1 -m ghproxy
+curl -fSsL https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh | bash -s -- -v v0.1.1 -m ghproxy
 # 默认安装最新版本（脚本加速）
-curl -fSsL https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh | bash -s -- -m ghproxy
+curl -fSsL https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh | bash -s -- -m ghproxy
 
 
 ```
 ```bash
 # 分步骤安装
 # 下载安装脚本
-curl -o install.sh https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh
+curl -o install.sh https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh
 # 下载安装脚本（脚本加速源）
-curl -o install.sh https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/wen-ai-cli/main/install.sh
+curl -o install.sh https://ghproxy.net/https://raw.githubusercontent.com/zdt1013/hi-ai-cli/main/install.sh
 
 # 添加执行权限
 chmod +x install.sh
@@ -57,33 +54,13 @@ sudo ./install.sh -v v0.1.1
 # 使用加速源安装（可选值：ghproxy, wgetla）
 sudo ./install.sh -v v0.1.1 -m ghproxy
 ```
-
-#### 方式2. 🚀 本地编译
-1. 克隆仓库：
-```bash
-git clone https://github.com/zdt1013/wen-ai-cli.git
-cd wen-ai-cli
-```
-
-2. 安装依赖：
-```bash
-go mod download
-```
-
-3. 编译项目：
-```bash
-go build
-```
-
-4. 将编译后的可执行文件添加到系统PATH中（可选）
-
 ## 🚀 使用方法
 
 ### ⌨️ 单轮提问模式
 
 ```bash
 # 基本格式
-> wen + [输入任意问题]
+> hi + [输入任意问题]
 ```
 
 ![单轮提问模式示例](docs/example1.png)
@@ -91,9 +68,9 @@ go build
 ### 💬 启动对话模式
 ```bash
 # 基本格式
-> wen chat + [输入首轮问题]
+> hi chat + [输入首轮问题]
 或
-> wen chat <回车>
+> hi chat <回车>
   <输入任意问题>
 ```
 ![对话模式示例](docs/example2.png)
@@ -103,33 +80,33 @@ go build
 > 
 ```bash
 # 基本格式
-> wen man -c curl [可选输入附加问题]
+> hi man -c curl [可选输入附加问题]
 # 示例
-> wen man -c curl "重点介绍下fSsL参数"
+> hi man -c curl "重点介绍下fSsL参数"
 ```
 ![man模式示例](docs/example3.png)
 ### 🛠️ 其他命令
 ```bash
 # 查看配置
-> wen config --help
+> hi config --help
 # 查看帮助信息
-> wen --help
+> hi --help
 ```
 
 ### 🔧 配置说明
 
-在使用问AI之前，你需要配置必要的参数，比如API密钥等。可以通过以下命令进行配置：
+在使用Hi AI之前，你需要配置必要的参数，比如API密钥等。可以通过以下命令进行配置：
 
 ```bash
-> wen config --apiKey YOUR_API_KEY --baseUrl YOUR_API_BASE --model YOUR_API_MODEL
+> hi config --apiKey YOUR_API_KEY --baseUrl YOUR_API_BASE --model YOUR_API_MODEL
 或
-> wen config -k YOUR_API_KEY -u YOUR_API_BASE -m YOUR_API_MODEL
+> hi config -k YOUR_API_KEY -u YOUR_API_BASE -m YOUR_API_MODEL
 ```
 
 ## 📁 项目结构
 
 ```
-wen-ai-cli/
+hi-ai-cli/
 ├── action/     # 命令动作实现
 ├── assets/     # 静态资源
 │   └── lang/   # 多语言包
@@ -141,7 +118,7 @@ wen-ai-cli/
 ├── model/      # 数据模型
 ├── setup/      # 初始化设置
 ├── validate/   # 验证器
-├── wenai/      # 核心功能实现
+├── hiai/      # 核心功能实现
 ├── main.go     # 程序入口
 ├── go.mod      # Go模块定义
 └── go.sum      # Go模块依赖校验
@@ -156,7 +133,7 @@ wen-ai-cli/
  * 工具链（functioncall、mcp）支持。
  * 思考模型兼容。
  * 用户体系，方便即安即用，不用自己去配置ai参数。
- * 用户知识库、使用偏好，方便保存自己使用习惯，Wen AI更懂你。
+ * 用户知识库、使用偏好，方便保存自己使用习惯，Hi AI更懂你。
 
 ## 📚 依赖开源项目
  * [urfave/cli](https://github.com/urfave/cli) - 命令行应用框架

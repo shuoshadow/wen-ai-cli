@@ -1,4 +1,4 @@
-module wen-ai-cli
+module hi-ai-cli
 
 go 1.23
 

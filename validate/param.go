@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/url"
 	"strings"
-	"wen-ai-cli/setup"
+	"hi-ai-cli/setup"
 )
 
 // ValidateParam 根据参数类型验证输入值

@@ -1,14 +1,14 @@
-package wenai
+package hiai
 
 import (
 	"encoding/json"
+	"hi-ai-cli/common"
+	"hi-ai-cli/model"
+	"hi-ai-cli/setup"
 	"io"
 	"log"
 	"regexp"
 	"strings"
-	"wen-ai-cli/common"
-	"wen-ai-cli/model"
-	"wen-ai-cli/setup"
 
 	"github.com/cloudwego/eino/schema"
 )

@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"hi-ai-cli/action"
+	"hi-ai-cli/cmd"
+	"hi-ai-cli/logger"
+	"hi-ai-cli/setup"
 	"os"
-	"wen-ai-cli/action"
-	"wen-ai-cli/cmd"
-	"wen-ai-cli/logger"
-	"wen-ai-cli/setup"
 
 	"github.com/gookit/i18n"
 	"github.com/urfave/cli/v3"
@@ -28,9 +28,9 @@ func main() {
 
 	// 初始化命令
 	app := &cli.Command{
-		Name:   "wen",
+		Name:   "hi",
 		Usage:  i18n.Dtr("usage"),
-		Action: action.NewWenOnceAction(),
+		Action: action.NewHiOnceAction(),
 		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
 			// 获取当前要运行的command
 			command := cmd.Args().First()

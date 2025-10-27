@@ -1,6 +1,6 @@
 package model
 
-import "wen-ai-cli/mcp"
+import "hi-ai-cli/mcp"
 
 type OpenAI struct {
 	APIKey  string `mapstructure:"apiKey" json:"apiKey"`

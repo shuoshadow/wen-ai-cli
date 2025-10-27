@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"wen-ai-cli/logger"
+	"hi-ai-cli/logger"
 
 	"github.com/mark3labs/mcp-go/client"
 	mcpTypes "github.com/mark3labs/mcp-go/mcp"
