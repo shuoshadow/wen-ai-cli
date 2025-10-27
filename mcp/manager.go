@@ -3,9 +3,9 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"hi-ai-cli/logger"
 	"sync"
 	"time"
-	"hi-ai-cli/logger"
 
 	"github.com/mark3labs/mcp-go/client"
 	mcpTypes "github.com/mark3labs/mcp-go/mcp"
@@ -214,7 +214,7 @@ func (sc *ServerConnection) Connect(ctx context.Context) error {
 	initRequest := mcpTypes.InitializeRequest{}
 	initRequest.Params.ProtocolVersion = mcpTypes.LATEST_PROTOCOL_VERSION
 	initRequest.Params.ClientInfo = mcpTypes.Implementation{
-		Name:    "wen-ai-cli",
+		Name:    "hi-ai-cli",
 		Version: "1.0.0",
 	}
 	initRequest.Params.Capabilities = mcpTypes.ClientCapabilities{}
