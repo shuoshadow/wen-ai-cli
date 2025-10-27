@@ -1,6 +1,7 @@
 package execute
 
 import (
+	"fmt"
 	"os"
 	"time"
 	"wen-ai-cli/logger"
@@ -28,10 +29,10 @@ func DefaultOptions() ExecuteOptions {
 // 输出命令执行状态
 func printCommandStatus(status cmd.Status) {
 	for _, line := range status.Stdout {
-		logger.Info(line)
+		fmt.Println(line)
 	}
 	for _, line := range status.Stderr {
-		logger.Error(line)
+		fmt.Fprintln(os.Stderr, line)
 	}
 }
 

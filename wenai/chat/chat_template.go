@@ -86,7 +86,30 @@ var answerDescription = `- 回答说明:
 	        }
 	      }
 	      </tool_call>
-	   d. 使用工具时，只需在"概述"部分简要说明要使用的工具和原因，不要生成"待执行脚本"部分。`
+	   d. 使用工具时，只需在"概述"部分简要说明要使用的工具和原因，不要生成"待执行脚本"部分。
+	7. 【重要】MCP 工具参数智能推断规则：
+	   a. 当工具需要 namespace 参数时：
+	      - 如果用户明确指定了命名空间，使用指定的命名空间
+	      - 如果当前在 K8s 环境中且已知当前命名空间，优先使用当前命名空间
+	      - 如果用户没有指定且不在 K8s 环境中，或需要跨命名空间查询，使用 "default"
+	   b. 当工具需要 kind 参数时（K8s 资源类型）：
+	      - 从用户问题中提取资源类型关键词：
+	        * "pod" / "Pod" / "容器" → kind: "pod"
+	        * "deployment" / "Deployment" / "部署" → kind: "deployment"
+	        * "service" / "Service" / "服务" → kind: "service"
+	        * "statefulset" / "StatefulSet" → kind: "statefulset"
+	        * "daemonset" / "DaemonSet" → kind: "daemonset"
+	      - 如果用户说 "pod是xxx" / "xxx的pod" / "xxx容器"，kind 应该为 "pod"
+	      - 如果无法确定，对于工作负载相关查询，默认使用 kind: "pod"
+	   c. 当工具需要 container/pod/workload 名称时：
+	      - 从用户问题中提取关键词（如 "hop容器" → workload: "hop", kind: "pod"）
+	      - "pod是hop" / "hop的pod" → workload: "hop", kind: "pod"
+	      - 支持模糊匹配，不需要完整名称
+	   d. 参数缺失处理：
+	      - 对于可选参数，可以不传递
+	      - 对于必需参数（如 namespace、kind），必须从上下文推断合理的默认值
+	      - 确保所有必需参数都有值后再调用工具，避免因参数缺失导致调用失败
+	      - 只有在完全无法推断必需参数时，才询问用户`
 
 var answerFormat = `-> 参考回答格式：
 
@@ -144,6 +167,19 @@ func getAvailableTools() string {
 	for i, tool := range tools {
 		toolsDesc.WriteString(fmt.Sprintf("  %d. %s - %s\n", i+1, tool.Name, tool.Description))
 	}
+
+	// 添加常见使用示例
+	toolsDesc.WriteString("\n-> 工具使用示例：\n")
+	toolsDesc.WriteString("  【示例1】查询hop容器/pod的内存：\n")
+	toolsDesc.WriteString(`    用户问题："hop容器内存多少" 或 "pod是hop的容器内存"`)
+	toolsDesc.WriteString("\n")
+	toolsDesc.WriteString(`    正确调用：{"name": "workload resource usage", "arguments": {"workload": "hop", "kind": "pod", "namespace": "all", "resource_type": "memory"}}`)
+	toolsDesc.WriteString("\n")
+	toolsDesc.WriteString("  【示例2】查询某个deployment的CPU使用：\n")
+	toolsDesc.WriteString(`    用户问题："xxx部署的CPU使用率"`)
+	toolsDesc.WriteString("\n")
+	toolsDesc.WriteString(`    正确调用：{"name": "workload resource usage", "arguments": {"workload": "xxx", "kind": "deployment", "namespace": "all", "resource_type": "cpu"}}`)
+	toolsDesc.WriteString("\n")
 
 	return toolsDesc.String()
 }
@@ -262,11 +298,13 @@ func getK8sContext() string {
 	var contextInfo []string
 	contextInfo = append(contextInfo, "-> Kubernetes 环境信息：")
 
+	currentNamespace := ""
 	if podName, ok := k8sCtx["pod_name"]; ok {
 		contextInfo = append(contextInfo, fmt.Sprintf("  - 当前 Pod: %s", podName))
 	}
 	if namespace, ok := k8sCtx["namespace"]; ok {
-		contextInfo = append(contextInfo, fmt.Sprintf("  - 命名空间: %s", namespace))
+		currentNamespace = namespace
+		contextInfo = append(contextInfo, fmt.Sprintf("  - 当前命名空间: %s", namespace))
 	}
 	if nodeName, ok := k8sCtx["node_name"]; ok {
 		contextInfo = append(contextInfo, fmt.Sprintf("  - 节点: %s", nodeName))
@@ -285,6 +323,13 @@ func getK8sContext() string {
 	contextInfo = append(contextInfo, "  1. 优先使用可用的 MCP 工具进行 K8s 相关操作")
 	contextInfo = append(contextInfo, "  2. 生成的命令应考虑容器环境的限制和特性")
 	contextInfo = append(contextInfo, "  3. 对于跨命名空间的操作，需要检查权限")
+
+	// 添加命名空间使用建议
+	if currentNamespace != "" {
+		contextInfo = append(contextInfo, fmt.Sprintf("  4. 使用MCP工具时，如未指定namespace参数，可以使用当前命名空间'%s'或使用'all'查询所有命名空间", currentNamespace))
+	} else {
+		contextInfo = append(contextInfo, "  4. 使用MCP工具时，如需跨命名空间查询，建议使用namespace='all'")
+	}
 
 	return strings.Join(contextInfo, "\n")
 }
